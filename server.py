@@ -4,7 +4,10 @@ from pathlib import Path
 
 LOCALHOST = "127.0.0.1"
 PORT = 80
+RECV_LEN = 4096
 
+SUCCESS_CODE = 200
+NOT_FOUND_CODE = 404
 
 class WebServer(object):
     def __init__(self, host: str, port: int):
@@ -18,7 +21,7 @@ class WebServer(object):
         self.__current_client = None
 
         # Number of bytes to receive.
-        self.__recv_len = 4096
+        self.__recv_len = RECV_LEN
 
         # Current working directory. Used to find the necessary files.
         self.__cwd = os.getcwd()
@@ -73,14 +76,14 @@ class WebServer(object):
             file_name = "index.html"
 
         # Sets successful status code to start.
-        status_code = 200
+        status_code = SUCCESS_CODE
 
         if not self.__file_exists(file_name):
-            status_code = 404
+            status_code = NOT_FOUND_CODE
 
         content_type = self.__lookup_content_type(file_name)
         if content_type is None:
-            status_code = 404
+            status_code = NOT_FOUND_CODE
 
         # Send header.
         self.__current_client.send(f"HTTP/1.1 {status_code} {self.__code_to_msg(status_code)}\r\n".encode('latin-1'))
@@ -89,7 +92,7 @@ class WebServer(object):
         self.__current_client.send("\r\n".encode('latin-1'))
 
         # Send payload.
-        if status_code == 200 and content_type is not None:
+        if status_code == SUCCESS_CODE and content_type is not None:
             file = open(f"{self.__cwd}/{file_name}", 'rb')
             data = file.read()
             self.__current_client.send(data)
@@ -127,9 +130,9 @@ class WebServer(object):
 
     @staticmethod
     def __code_to_msg(code):
-        if code == 200:
+        if code == SUCCESS_CODE:
             return "OK"
-        elif code == 404:
+        elif code == NOT_FOUND_CODE:
             return "NOT FOUND"
         else:
             return "UNK"
