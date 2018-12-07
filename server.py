@@ -3,11 +3,12 @@ import os
 from pathlib import Path
 
 LOCALHOST = "127.0.0.1"
-PORT = 80
 RECV_LEN = 4096
+PORT = 80
 
 SUCCESS_CODE = 200
 NOT_FOUND_CODE = 404
+
 
 class WebServer(object):
     def __init__(self, host: str, port: int):
@@ -28,6 +29,7 @@ class WebServer(object):
 
     def start_server(self):
         self.__initialize_socket()
+        print(f"Server is up and running on {self.__host}:{self.__port}")
         self.__run_main_server_loop()
 
     def __initialize_socket(self):
@@ -123,8 +125,6 @@ class WebServer(object):
             return "video/mpeg"
         elif ext in ['js']:
             return 'application/javascript'
-        elif ext in ['io']:
-            return "image/x-icon"
         else:
             return None
 
