@@ -77,6 +77,8 @@ class WebServer(object):
         if file_name == '/':
             file_name = "index.html"
 
+        print(f"Get request for: {file_name}")
+
         # Sets successful status code to start.
         status_code = SUCCESS_CODE
 
@@ -87,10 +89,16 @@ class WebServer(object):
         if content_type is None:
             status_code = NOT_FOUND_CODE
 
+        print(f"Status code: {status_code}")
+        print(f"File extension: {content_type}")
+
         # Send header.
         self.__current_client.send(f"HTTP/1.1 {status_code} {self.__code_to_msg(status_code)}\r\n".encode('latin-1'))
         self.__current_client.send(f"Content-Type: {content_type}\r\n".encode('latin-1'))
-        self.__current_client.send(f"Content-Length: {os.path.getsize(f'{self.__cwd}/{file_name}')}\r\n".encode('latin-1'))
+
+        if status_code != NOT_FOUND_CODE:
+            self.__current_client.send(f"Content-Length: {os.path.getsize(f'{self.__cwd}/{file_name}')}\r\n".encode('latin-1'))
+
         self.__current_client.send("\r\n".encode('latin-1'))
 
         # Send payload.
